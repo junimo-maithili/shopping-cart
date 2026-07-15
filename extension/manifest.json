@@ -20,7 +20,8 @@
             "https://www.amazon.ca/*",
             "https://www.amazon.com/*"
           ],
-          "js": ["content.js"]
+          "js": ["content.js"],
+          "run_at": "document_idle"
         }
     ],
     "action": {
