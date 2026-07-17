@@ -3,7 +3,6 @@ import './App.css'
 function App() {
 
   const sendBudget = async (formData: FormData) => {
-    
 
     const budget = formData.get("budget"); 
     alert(budget)
@@ -17,9 +16,6 @@ function App() {
       .then(response => response.json())
       .then(data => console.log('Success:', data))
       .catch(error => console.error('Error:', error));
-
-
-
   }
 
   

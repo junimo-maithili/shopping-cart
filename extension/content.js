@@ -4,8 +4,6 @@ console.log("content.js is running!");
 var price = document.querySelector('.a-price .a-offscreen')?.textContent;
 chrome.storage.local.set({ price });
 
-alert("price received!")
-
 //POST request to send price to backend
 const priceInfo = {
     method: 'POST',
@@ -15,18 +13,35 @@ const priceInfo = {
 
 async function sendPrice() {
     try {
-    alert("Price is now in a json file :D")
 
     await fetch('http://127.0.0.1:5000/submitExtensionData', priceInfo)
         .then(response => response.json())
         .then(data => console.log('Success:', data))
         .catch(error => console.error('Error:', error));
 
-    alert("running extension. POST REQUEST SENT")
     } catch (error) {
         console.log(error)
-        alert("didn't work :(")
     }
 }
 
 sendPrice();
+
+
+
+async function getMessage() {
+    try {
+    alert("message is on it's way")
+
+    const response = await fetch('http://127.0.0.1:5000/budgetAnalysis')
+    const data = await response.json()
+    console.log(data)
+    alert(data.message)
+
+    } catch (error) {
+        console.log(error)
+        alert("didn't work :(")
+    }
+
+}
+
+getMessage()
