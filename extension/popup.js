@@ -2,4 +2,3 @@
 chrome.storage.local.get("price", ({ price }) => {
     document.getElementById("cost").textContent = price;
 });
-document.getElementById("cost").textContent = price;

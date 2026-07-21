@@ -4,7 +4,7 @@ function App() {
 
   const sendBudget = async (formData: FormData) => {
 
-    const budget = formData.get("budget"); 
+    const budget = formData.get("budget");
     alert(budget)
 
     const budgetInfo: RequestInit = {
