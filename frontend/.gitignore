@@ -22,3 +22,21 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Firebase
+firebase.ts
+
+# Firebase service account keys
+serviceAccountKey.json
+firebase-adminsdk*.json
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Firebase local emulator files
+.firebase/
+
+__pycache__/
+*.pyc

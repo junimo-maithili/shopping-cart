@@ -1,6 +1,8 @@
 import './App.css'
+import Login from './assets/Login';
 
 function App() {
+  
 
   const sendBudget = async (formData: FormData) => {
 
@@ -17,8 +19,6 @@ function App() {
       .then(data => console.log('Success:', data))
       .catch(error => console.error('Error:', error));
   }
-
-  
 
 
   return (
@@ -38,6 +38,13 @@ function App() {
               </label>
               <input type="submit" value="Submit"/>
             </form>
+          </div>
+
+          <div>
+            <br/><br/><br/>
+            <Login/>
+            
+
           </div>
       
         </div>

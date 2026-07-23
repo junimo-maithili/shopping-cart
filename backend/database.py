@@ -16,15 +16,16 @@ def updateDb(uuid, budgetData, priceData, fbId):
 
         # Create a table for users
         cursor.execute("CREATE TABLE IF NOT EXISTS FIREBASEIDS (Id INTEGER PRIMARY KEY, FirebaseId Varchar(50))")
-        new_id = cursor.lastrowid
 
         if fbId:
-            cursor.execute("SELECT EXISTS( SELECT 1 FROM DEVICES WHERE FirebaseId = ?)", (uuid,))
+            cursor.execute("SELECT EXISTS (SELECT 1 FROM FIREBASEIDS WHERE FirebaseId = ?)", (fbId,))
             result = cursor.fetchone()
 
             if result == (0,):
                 print("Adding a FireBase Id!")
-                cursor.execute("INSERT INTO DEVICES (Id, DeviceUuid) VALUES (?,?)", (new_id, uuid))
+                cursor.execute("INSERT INTO FIREBASEIDS (FirebaseId) VALUES (?)", (fbId,))
+        new_id = cursor.lastrowid
+
 
 
         # Create a table for devices
@@ -67,7 +68,7 @@ def updateDb(uuid, budgetData, priceData, fbId):
 
 
         query = """SELECT * FROM USERINFO"""
-        cursor.execute("SELECT * FROM USERINFO")
+        cursor.execute("SELECT * FROM FIREBASEIDS")
         rows = cursor.fetchall()
         for row in rows:
             print(row)
@@ -83,13 +84,21 @@ def updateDb(uuid, budgetData, priceData, fbId):
             sqliteConnection.close()
             print('SQLite connection closed')
 
+
 # is it bad to have two cursors
-def sendInfo(id):
+def sendInfo(fbId):
     try:
         sqliteConnection = sqlite3.connect('sql.db')
         cursor = sqliteConnection.cursor()
 
-        cursor.execute("SELECT * FROM USERINFO WHERE Id = ?", (id,)) # change this table name maybe
+        cursor.execute("SELECT * FROM FIREBASEIDS WHERE FirebaseId = ?", (fbId,))
+        result = cursor.fetchone()
+        if not result:
+            return None
+        
+        new_id = result[0]
+
+        cursor.execute("SELECT * FROM USERINFO WHERE Id = ?", (new_id,)) # change this table name maybe
         result = cursor.fetchone()
         cursor.close()
 

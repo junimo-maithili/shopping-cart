@@ -5,6 +5,7 @@ api = Blueprint("api", __name__)
 budgetData = None
 priceData = None
 uuid = None
+fbId = None
 
 
 
@@ -15,11 +16,25 @@ def submitUUID():
     data = request.get_json()
     uuid = data["UUID"]
 
-    userInfo = sendInfo(uuid)
+    userInfo = sendInfo(fbId)
     budgetData = userInfo[1]
     priceData = userInfo[2]
+    print("budget and price")
     print(budgetData)
     print(priceData)
+
+    return jsonify({
+        "message": "Received",
+        "data": data
+    })
+
+# Gets Firebase UUID
+@api.route("/submitFbId", methods=["POST"])
+def submitFbId():
+    global uuid
+    data = request.get_json()
+    fbId = data["uuid"]
+    updateDb(None, None, None, fbId)
 
     return jsonify({
         "message": "Received",
@@ -34,10 +49,13 @@ def getBudget():
     data = request.get_json()
 
     budget = data["budgetInfo"]
-    budgetData = budget
+    print("WOW!")
+    print(budget)
 
-    if uuid:
-        updateDb(uuid, budgetData, None, None)
+    print(budgetData)
+
+    updateDb(fbId, budgetData, None, None)
+    print("db updated")
 
     return jsonify({
         "message": "Received",
@@ -52,10 +70,9 @@ def getPrice():
     data = request.get_json()
 
     price = data["priceInfo"]
-    priceData = price
     
-    if uuid:
-        updateDb(uuid, None, priceData, None)
+    if fbId and price != priceData:
+        updateDb(fbId, None, priceData, None)
 
     return jsonify({
         "message": "Received",
