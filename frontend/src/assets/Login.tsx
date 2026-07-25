@@ -1,16 +1,25 @@
 import { loginWithGoogle } from "../auth"
 
-const Login = () => {
+interface LoginProps {
+  uuid: string | null;
+}
+
+function Login({ uuid }: LoginProps) {
+
 
   async function login () {
 
-    const uuid = await loginWithGoogle()
+    const firebaseUuid = await loginWithGoogle()
+
+    console.log("Firebase UUID:", firebaseUuid);
+    console.log("Extension UUID:", uuid);
+
 
     // Send UUID to backend
     const fbId: RequestInit = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ uuid })
+        body: JSON.stringify({ firebaseUuid, uuid })
       };
     await fetch('http://127.0.0.1:5000/submitFbId', fbId)
         .then(response => response.json())

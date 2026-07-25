@@ -3,9 +3,10 @@ from database import updateDb, sendInfo
 
 api = Blueprint("api", __name__)
 budgetData = None
-priceData = None
 uuid = None
 fbId = None
+
+#hi 
 
 
 
@@ -14,14 +15,7 @@ fbId = None
 def submitUUID():
     global uuid
     data = request.get_json()
-    uuid = data["UUID"]
-
-    userInfo = sendInfo(fbId)
-    budgetData = userInfo[1]
-    priceData = userInfo[2]
-    print("budget and price")
-    print(budgetData)
-    print(priceData)
+    uuid = data["extensionUUID"]
 
     return jsonify({
         "message": "Received",
@@ -31,10 +25,10 @@ def submitUUID():
 # Gets Firebase UUID
 @api.route("/submitFbId", methods=["POST"])
 def submitFbId():
-    global uuid
+    global fbId
     data = request.get_json()
-    fbId = data["uuid"]
-    updateDb(None, None, None, fbId)
+    uuid = data["uuid"]
+    updateDb(uuid, None, None, fbId)
 
     return jsonify({
         "message": "Received",
@@ -49,12 +43,11 @@ def getBudget():
     data = request.get_json()
 
     budget = data["budgetInfo"]
-    print("WOW!")
-    print(budget)
+    uuid = data["uuid"]
 
-    print(budgetData)
+  
+    updateDb(uuid, budget, None, None)
 
-    updateDb(fbId, budgetData, None, None)
     print("db updated")
 
     return jsonify({
@@ -66,18 +59,19 @@ def getBudget():
 # Gets information about the price of a given product
 @api.route("/submitExtensionData", methods=["POST"])
 def getPrice():
-    global priceData
+  
     data = request.get_json()
-
     price = data["priceInfo"]
+    uuid = data["uuid"]
     
-    if fbId and price != priceData:
-        updateDb(fbId, None, priceData, None)
+    print("updating price")
+    updateDb(uuid, None, price, None)
 
     return jsonify({
         "message": "Received",
         "data": data
     })
+
 
 # Compares price and budget and sends results to the frontend
 @api.route("/budgetAnalysis", methods=["GET"])

@@ -1,25 +1,59 @@
+console.log("CONTENT.JS LOADED:");
+let extensionUUID = null;
+
+
 async function awaitUUID() {
+    try {
     // Return promise (which will be UUID)
     
-    let { UUID } = await chrome.storage.local.get("UUID");
+
+    let result = await chrome.storage.local.get("UUID");
+    extensionUUID = result.UUID;
+
     
-    if (!UUID) {
-        UUID = crypto.randomUUID()
-        chrome.storage.local.set({  UUID })
-    }
+    if (!extensionUUID) {
+        extensionUUID = crypto.randomUUID()
+        await chrome.storage.local.set({ UUID: extensionUUID });    
         
     // Send post request for UUID
     const userInfo = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ UUID })
+        body: JSON.stringify({ extensionUUID })
     };
 
     const response = await fetch('http://127.0.0.1:5000/submitUUID', userInfo)
     const data = await response.json();
-    console.log(data);
+    }
+
+    return extensionUUID
+
+    } catch (error) {
+        console.error("Storage failed:", error);
+        return null;
+    }
+
 
 }
+
+window.addEventListener("message", async (event) => {
+    console.log("Content script got:", event.data);
+
+    if (event.source !== window) return;
+
+    if (event.data.type === "GET_UUID") {
+        const UUID = await awaitUUID();
+    
+        window.postMessage(
+            {
+                type: "RETURN_UUID",
+                uuid: UUID
+            },
+            "*"
+        );
+    }
+});
+
 
 
 // Observing for price updates
@@ -61,11 +95,13 @@ chrome.storage.local.set({ "price": price });
 async function sendPrice(priceVal) {
     if (!priceVal) return false
 
+    UUID = await awaitUUID()
+
     try {
         const priceInfo = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ priceInfo: priceVal })
+            body: JSON.stringify({ priceInfo: priceVal, uuid: UUID })
         };
 
         await fetch('http://127.0.0.1:5000/submitExtensionData', priceInfo)
