@@ -10,10 +10,9 @@ function App() {
     console.log("CALLED SEND BUDGET")
 
     const budget = formData.get("budget");
-    alert(budget)
+
     const newUuid = await getExtensionUUID();
     setUuid(newUuid)
-    console.log("SET UUID")
 
   
     const budgetInfo: RequestInit = {
@@ -21,17 +20,21 @@ function App() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ budgetInfo: budget, uuid: newUuid })
     };
+    console.log("fetching now!")
 
     await fetch('http://127.0.0.1:5000/submitSiteData', budgetInfo)
         .then(response => response.json())
         .then(data => console.log('Success:', data))
         .catch(error => console.error('Error:', error));
+
+      
   }
 
   function getExtensionUUID() {
-    return new Promise<string | null>((resolve) => {
-  
+    return new Promise<string | null>((resolve) => {  
       const handler = (event: MessageEvent) => {
+        console.log("Received message:", event.data);
+
   
         if (event.data.type !== "RETURN_UUID") {
           return;
@@ -58,17 +61,20 @@ function App() {
 
   return (
     <>
-      <section id="center">
-       
         <div>
-          <h1>Set Budget</h1>
-          <p>Turn this into a react component</p>
+          <Login uuid={uuid}/>
+        </div>
+       
+      <section id="center">
+        <div>
+          <h1>Shopping Cart</h1>
           <div>
-            <h2>category</h2>
-            <p>set price</p>
+            <p>Set a budget you'd like to follow!</p>
+            <p>Shopping Cart will send you messages top encourage you not to spend too much on Amazon.</p>
             <form action={sendBudget}>
+            <br/><br/><br/>
               <label>
-                category <br/>
+                Budget <br/>
                 <input type="text" name="budget" />
               </label>
               <input type="submit" value="Submit"/>
@@ -77,7 +83,7 @@ function App() {
 
           <div>
             <br/><br/><br/>
-            <Login uuid={uuid}/>
+          
             
 
           </div>

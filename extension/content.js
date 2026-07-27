@@ -8,7 +8,9 @@ async function awaitUUID() {
     
 
     let result = await chrome.storage.local.get("UUID");
+    console.log("Storage returned:", result);
     extensionUUID = result.UUID;
+    console.log("extensionUUID =", extensionUUID);
 
     
     if (!extensionUUID) {
@@ -44,6 +46,10 @@ window.addEventListener("message", async (event) => {
     if (event.data.type === "GET_UUID") {
         const UUID = await awaitUUID();
     
+        console.log("UUID returned from awaitUUID:", UUID);
+
+        console.log("Posting RETURN_UUID");
+
         window.postMessage(
             {
                 type: "RETURN_UUID",
@@ -123,7 +129,9 @@ async function sendPrice(priceVal) {
 async function getMessage() {
     try {
     const response = await fetch('http://127.0.0.1:5000/budgetAnalysis')
-    return await response.json()
+    responseGiven = await response.json()
+    const message = responseGiven["message"]
+    return message
 
     } catch (error) {
         console.log(error)
@@ -132,3 +140,12 @@ async function getMessage() {
     }
 
 }
+
+(async () => {
+    const message = await getMessage();
+     console.log("Sending back:", UUID);
+
+    await chrome.storage.local.set({
+        budgetMessage: message
+    });
+});

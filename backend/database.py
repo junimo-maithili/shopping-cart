@@ -8,19 +8,16 @@ import importlib
 def updateDb(uuid, budgetData, priceData, fbId):
     print("Updating Db!")
 
-    print("budget =", repr(budgetData))
-
     try:
         sqliteConnection = sqlite3.connect('sql.db')
         cursor = sqliteConnection.cursor()
 
         # Create a table for users
-        cursor.execute("CREATE TABLE IF NOT EXISTS FIREBASEIDS (Id INTEGER PRIMARY KEY, FirebaseId Varchar(50))")
+        cursor.execute("CREATE TABLE IF NOT EXISTS FIREBASEIDS (Id INTEGER PRIMARY KEY AUTOINCREMENT, FirebaseId Varchar(50))")
         # Create a table for devices
-        cursor.execute("CREATE TABLE IF NOT EXISTS DEVICES (Id INT, DeviceUuid Varchar(50))")
+        cursor.execute("CREATE TABLE IF NOT EXISTS DEVICES (Id INTEGER PRIMARY KEY AUTOINCREMENT, DeviceUuid Varchar(50))")
         # Create a table for other info (budget, price)
-        cursor.execute("CREATE TABLE IF NOT EXISTS USERINFO (Id INT, Budget VARCHAR(25), Price VARCHAR(25))")
-
+        cursor.execute("CREATE TABLE IF NOT EXISTS USERINFO (Id INTEGER PRIMARY KEY, Budget VARCHAR(25), Price VARCHAR(25))")
 
         cursor.execute("SELECT Id FROM DEVICES WHERE DeviceUuid = ?", (uuid,))
         row = cursor.fetchone()
@@ -30,12 +27,9 @@ def updateDb(uuid, budgetData, priceData, fbId):
                 "INSERT INTO DEVICES (DeviceUuid) VALUES (?)",
                 (uuid,)
             )
-
             new_id = cursor.lastrowid
-
         else:
             new_id = row[0]
-
 
        
         # Check to see if the device is already in the table
@@ -49,9 +43,20 @@ def updateDb(uuid, budgetData, priceData, fbId):
                 cursor.execute("INSERT INTO DEVICES (Id, DeviceUuid) VALUES (?,?)", (new_id, uuid))
 
 
+
+
+        print("DEVICE ID:", new_id)
+
+        cursor.execute("SELECT * FROM USERINFO")
+        print("CURRENT USERINFO:", cursor.fetchall())
+
        
         cursor.execute("SELECT EXISTS (SELECT 1 FROM USERINFO WHERE Id = ?)", (new_id,))
         result = cursor.fetchone()
+
+        print("USERINFO EXISTS RESULT:", result)
+
+
 
         if result == (0,):
             cursor.execute("INSERT INTO USERINFO (Id) VALUES (?)", (new_id,))
@@ -59,7 +64,6 @@ def updateDb(uuid, budgetData, priceData, fbId):
         # Put budget in table
         if budgetData is not None:
             budgetData = str(budgetData)
-            print("trying to add budget: " + budgetData)
             cursor.execute("UPDATE USERINFO SET Budget = ? WHERE Id = ?", (budgetData, new_id))            
 
         # Put price in table
@@ -70,7 +74,8 @@ def updateDb(uuid, budgetData, priceData, fbId):
 
 
         query = """SELECT * FROM USERINFO"""
-        cursor.execute("SELECT * FROM USERINFO")
+        cursor.execute(query)
+
         rows = cursor.fetchall()
         for row in rows:
             print(row)
@@ -88,12 +93,12 @@ def updateDb(uuid, budgetData, priceData, fbId):
 
 
 # is it bad to have two cursors
-def sendInfo(fbId):
+def sendInfo(uuid):
     try:
         sqliteConnection = sqlite3.connect('sql.db')
         cursor = sqliteConnection.cursor()
 
-        cursor.execute("SELECT * FROM FIREBASEIDS WHERE FirebaseId = ?", (fbId,))
+        cursor.execute("SELECT * FROM FIREBASEIDS WHERE Uuid = ?", (uuid,))
         result = cursor.fetchone()
         if not result:
             return None

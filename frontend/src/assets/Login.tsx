@@ -30,7 +30,7 @@ function Login({ uuid }: LoginProps) {
 
   return (
 
-    <div>
+    <div id="login-bar">
         <button onClick={login}>Login</button>
                   
     </div>

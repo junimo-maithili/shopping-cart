@@ -3,10 +3,9 @@ from database import updateDb, sendInfo
 
 api = Blueprint("api", __name__)
 budgetData = None
+priceData = None
 uuid = None
 fbId = None
-
-#hi 
 
 
 
@@ -16,6 +15,7 @@ def submitUUID():
     global uuid
     data = request.get_json()
     uuid = data["extensionUUID"]
+
 
     return jsonify({
         "message": "Received",
@@ -40,31 +40,31 @@ def submitFbId():
 @api.route("/submitSiteData", methods=["POST"])
 def getBudget():
     global budgetData
+
     data = request.get_json()
+    print("Received budget request:", data)
 
-    budget = data["budgetInfo"]
+    budgetData = data["budgetInfo"]
     uuid = data["uuid"]
+    print("budgetData is now:", budgetData)
 
-  
-    updateDb(uuid, budget, None, None)
-
-    print("db updated")
+    updateDb(uuid, budgetData, None, None)
 
     return jsonify({
-        "message": "Received",
-        "data": data
+        "message": "Received"
     })
-
 
 # Gets information about the price of a given product
 @api.route("/submitExtensionData", methods=["POST"])
 def getPrice():
-  
+    global priceData
     data = request.get_json()
+
     price = data["priceInfo"]
+    priceData = price
     uuid = data["uuid"]
-    
-    print("updating price")
+
+    print("PRICE UUID:", uuid)
     updateDb(uuid, None, price, None)
 
     return jsonify({
@@ -72,11 +72,14 @@ def getPrice():
         "data": data
     })
 
-
 # Compares price and budget and sends results to the frontend
 @api.route("/budgetAnalysis", methods=["GET"])
 def budgetAnalysis():
     global budgetData, priceData
+
+    print("budgetAnalysis called")
+    print("budgetData =", repr(budgetData))
+    print("priceData =", repr(priceData))
     message = ""
 
     if not budgetData:
@@ -86,6 +89,13 @@ def budgetAnalysis():
             "percentage": 0,
             "message": message
         })
+    
+    if priceData == None or budgetData == None:
+        return  jsonify({
+        "difference": difference,
+        "percentage": percentage,
+        "message": "NO"
+    })
     
     priceData = float(priceData[1::])
     budgetData = float(budgetData)
